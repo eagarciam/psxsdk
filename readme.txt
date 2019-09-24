@@ -33,6 +33,10 @@ The only files that have been modified in this repository are this readme.txt
 for this upper section, toolchain.txt to clarify build instructions, and 
 Makefile.cfg for Debian-specific and NTSC-U region options.
 
+I have not generated the Doxygen API documentation -- the reader will have to 
+do that on their own basis. Documentation may be available on 
+http://unhaut.x10host.com/psxsdk/. 
+
 Other Notes:
 
 PSXSDK compiled and converted CD images lack proper EDC/L-EDC data (at the very 
