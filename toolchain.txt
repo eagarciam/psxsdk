@@ -1,0 +1,82 @@
+How to build a toolchain for the PSXSDK
+----------------------
+
+If you do not have the patience for this, do not do this. Unless you have
+some less used operating system and/or using a non-x86 processor on your development computer there are precompiled toolchains on the main PSXSDK site for some of the most common operating systems.
+
+These instructions are for Unix-like operating systems, although they will
+probably work also on Cygwin.
+
+To build a toolchain for the PSXSDK, you need to download GNU Binutils
+(http://www.gnu.org/software/binutils/) and GNU GCC (http://gcc.gnu.org)
+
+Latest package as of time of writing on 2019-09-22 is 2.32
+Grab any of the binutils 2.32 source archives (only difference is compression: .bz2, .gz, .lz, .xz) here:
+https://ftp.gnu.org/gnu/binutils/
+
+Latest supported release as of time of writing on 2019-09-22 is GCC 9.2; the latest supported release as of release of PSXSDK 0.6.2 20190410 is GCC 8.3
+Grab either gcc 8.3.0 source archive (only difference is compression: .gz or .xz) here:
+https://ftp.gnu.org/gnu/gcc/gcc-8.3.0/
+
+It is assumed that you want to install the toolchain you are going to build in
+/usr/local/psxsdk. If you don't want to do that simply replace it in the 
+commands with something else.
+
+If you are using a *BSD system, replace `make' with `gmake'.
+
+First of all, open a terminal.
+Then the following is a guide for what you will do: (also see notes below)
+# export BASEDIR=<directory-where-you-downloaded-binutils-and-gcc-source-archives>
+# cd $BASEDIR
+# mkdir source build
+# tar xjf binutils*bz2 -C source
+# tar xjf gcc*bz2 -C source
+# cd build
+# mkdir psxsdk-binutils
+# mkdir psxsdk-gcc
+# cd psxsdk-binutils
+# $BASEDIR/source/binutils*/configure --disable-nls --prefix=/usr/local/psxsdk --target=mipsel-unknown-elf --with-float=soft
+# make
+# make install
+# cd ..
+# cd psxsdk-gcc
+# $BASEDIR/source/gcc*/configure --disable-nls --disable-libada --disable-libssp --disable-libquadmath --disable-libstdc++-v3 \
+--target=mipsel-unknown-elf --prefix=/usr/local/psxsdk --with-float=soft --enable-languages=c,c++
+# make
+# make install
+
+Replace <directory-where-you-downloaded-binutils-and-gcc-source-archives> with the directory where you
+put the binutils and gcc source archives you downloaded.
+
+For the fourth and fifth lines with the 'tar' command, change the j flag to J and bz2 extension to xz or lz if the corresponding archive is .xz or .lz
+Otherwise change the j flag to z and bz2 extension to gz if the archive is .bz
+(e.g. tar xzf gcc*gz -C source)
+
+If you don't need C++ support, replace "--enable-languages=c,c++" with "--enable-languages=c" and remember
+to set CXX_SUPPORT in Makefile.cfg to `no'; that will avoid C++ support in PSXSDK from being compiled.
+
+Note that on some systems (like NetBSD) for some reason GCC might not build if you run its configure script using a relative path
+(like ..). This happens for a strange reason. In doubt, run the configure script using an absolute path (the complete name of the directory).
+
+Now you just need to build the PSXSDK. 
+
+Before building the PSXSDK, edit Makefile.cfg. TOOLCHAIN_PREFIX is very important,
+it specifies the directory where the PSXSDK toolchain is installed in. In our example it is /usr/local/psxsdk (the default)
+There should be explanations for the other variables. Makefile.cfg is currently set up for Debian (Ubuntu) and NTSC mode with USA licenses.
+
+To build the PSXSDK go into its directory, change your path variable to include the PSXSDK toolchain binaries:
+
+export PATH=$PATH:/usr/local/psxsdk/bin
+
+(You may need to add this line into your shell startup script, e.g. ~/.bashrc, so that you do not have to manually run it for each terminal instance you open.
+Google up how to do this for your particular shell.)
+
+and execute "make".
+
+If there are any build issues, try running make clean && make distclean before rebuilding. Debian distributions might require the zlib1g-dev package (not just zlib1g) installed for some linking steps.
+
+If everything went well, execute "make install".
+
+(You may need super user permissions to install this to /usr/local/psxsdk -- in that case, simply run "sudo make install".) 
+
+PSXSDK should be ready to go!
